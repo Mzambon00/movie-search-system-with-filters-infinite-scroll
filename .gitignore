@@ -1,0 +1,33 @@
+﻿# Dependências e módulos
+node_modules/
+.npm/
+package-lock.json
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Logs e temporários
+*.log
+*.tmp
+.cache/
+
+# Arquivos sensíveis (API Keys - NUNCA commitar!)
+.env
+.env.local
+config.js
+
+# Backup
+*.backup
+*.bak
+
+# Arquivos do servidor
+*.pyc
+__pycache__/

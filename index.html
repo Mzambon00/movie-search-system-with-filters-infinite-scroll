@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Sistema completo de busca de filmes com API do TMDB">
+    <title>🎬 MovieSearch - Encontre seus filmes favoritos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Carregando filmes...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Header Principal -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-area">
+                <i class="fas fa-film logo-icon"></i>
+                <h1 class="logo">Movie<span>Search</span></h1>
+            </div>
+            
+            <div class="search-area">
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar filmes... (ex: Inception, Matrix)" autocomplete="off">
+                    <button id="searchBtn" class="search-btn">Buscar</button>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="surpriseBtn" class="surprise-btn">
+                    <i class="fas fa-dice-d6"></i> Surpreenda-me
+                </button>
+                <button id="themeToggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-filter"></i> Filtros</h3>
+                <button id="closeFiltersBtn" class="close-filters">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="filters-content">
+                <!-- Filtro Gênero -->
+                <div class="filter-group">
+                    <label><i class="fas fa-tags"></i> Gênero</label>
+                    <select id="genreFilter">
+                        <option value="">Todos os Gêneros</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Ano -->
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> Ano</label>
+                    <div class="range-inputs">
+                        <input type="number" id="yearMin" placeholder="Mín" min="1900" max="2026">
+                        <span>até</span>
+                        <input type="number" id="yearMax" placeholder="Máx" min="1900" max="2026">
+                    </div>
+                </div>
+
+                <!-- Filtro Nota -->
+                <div class="filter-group">
+                    <label><i class="fas fa-star"></i> Nota Mínima: <span id="ratingValue">0</span></label>
+                    <input type="range" id="ratingFilter" min="0" max="10" step="0.5" value="0">
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Ordenação -->
+                <div class="filter-group">
+                    <label><i class="fas fa-sort"></i> Ordenar por</label>
+                    <select id="sortBy">
+                        <option value="popularity.desc">Popularidade</option>
+                        <option value="vote_average.desc">Nota (Maior)</option>
+                        <option value="vote_average.asc">Nota (Menor)</option>
+                        <option value="primary_release_date.desc">Ano (Novo)</option>
+                        <option value="primary_release_date.asc">Ano (Antigo)</option>
+                        <option value="original_title.asc">Título (A-Z)</option>
+                    </select>
+                </div>
+
+                <button id="clearFilters" class="clear-filters">
+                    <i class="fas fa-trash-alt"></i> Limpar Filtros
+                </button>
+
+                <!-- Favoritos Quick Access -->
+                <div class="favorites-quick">
+                    <h4><i class="fas fa-heart"></i> Favoritos</h4>
+                    <div id="favoritesList" class="favorites-list"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Mobile Filter Toggle -->
+            <button id="mobileFilterToggle" class="mobile-filter-toggle">
+                <i class="fas fa-filter"></i> Filtros
+            </button>
+
+            <!-- Results Header -->
+            <div class="results-header">
+                <h2 id="resultsTitle">Filmes Populares</h2>
+                <div class="results-count" id="resultsCount"></div>
+            </div>
+
+            <!-- Movies Grid -->
+            <div class="movies-grid" id="moviesGrid">
+                <!-- Skeleton Loaders serão inseridos aqui -->
+            </div>
+
+            <!-- Loading More Indicator -->
+            <div class="loading-more" id="loadingMore" style="display: none;">
+                <div class="spinner-small"></div>
+                <p>Carregando mais filmes...</p>
+            </div>
+
+            <!-- End of Results -->
+            <div class="end-results" id="endResults" style="display: none;">
+                <i class="fas fa-film"></i>
+                <p>Você chegou ao fim! 🎬</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Conteúdo dinâmico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Comparação -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content modal-compare">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale"></i> Comparar Filmes</h2>
+                <button class="modal-close-compare">&times;</button>
+            </div>
+            <div class="modal-body" id="compareBody">
+                <!-- Comparação dinâmica -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
